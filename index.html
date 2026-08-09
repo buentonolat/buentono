@@ -911,7 +911,7 @@ function renderQuestionScreen(step){
     optsHtml = `<div class="options grid2">` + step.options.map((o,i)=>{
       const selected = multi ? (Array.isArray(currentVal)&&currentVal.includes(i)) : currentVal===i;
       const imgTag = o.img
-        ? `<img src="${o.img}.jpg" alt="${esc(o.label)}" onerror="this.style.display='none'">`
+        ? `<img src="${o.img}.png" alt="${esc(o.label)}" onerror="this.style.display='none'">`
         : "";
       return `<div class="opt-img ${selected?'selected':''}" onclick="selectOption('${step.id}',${i},${multi})">
         <div class="swatch" style="background:${o.swatch}">${imgTag}</div>
@@ -989,7 +989,7 @@ function screenIntro(){
     <div class="eyebrow" style="text-align:center">${CONFIG.brandName}</div>
     <h1 style="text-align:center; font-size:26px;">Descubrí tu Estación de Color</h1>
     <p style="text-align:center">Entender tu paleta natural puede transformar tu placard, potenciar tu imagen y resaltar tu belleza natural.</p>
-    ${squarePhotoSlot("1.jpg", "Color Analysis Pro")}
+    ${squarePhotoSlot("1.png", "Color Analysis Pro")}
     <div class="checklist" style="margin-top:6px;">
       <div class="ci"><span class="tick">✓</span>Tu paleta de ropa ideal</div>
       <div class="ci"><span class="tick">✓</span>Maquillaje, cabello y metales</div>
@@ -1003,7 +1003,7 @@ function screenIntro(){
 function screenReveal(){
   return `<div class="screen" id="scr-reveal">
     ${topbar(true)}
-    ${wideImageSlot("2.jpg", "Color Analysis Pro")}
+    ${wideImageSlot("2.png", "Color Analysis Pro")}
     <h2>Tu análisis de color va a revelar:</h2>
     <div class="checklist">
       <div class="ci"><span class="tick">✓</span>Tu dirección de paleta estacional</div>
@@ -1018,7 +1018,7 @@ function screenReveal(){
 function screenSinglePhoto(){
   return `<div class="screen" id="scr-single-photo">
     ${topbar(false)}
-    ${wideImageSlot("28.jpg", "Color Analysis Pro")}
+    ${wideImageSlot("28.png", "Color Analysis Pro")}
     <h2>Vamos muy bien</h2>
     <p>Ya tenemos tus señales naturales. Ahora vamos a definir la dirección exacta de tu paleta.</p>
     <div class="btn-row"><button class="btn btn-primary" onclick="nextScreen()">Continuar</button></div>
@@ -1120,7 +1120,7 @@ function answerModal(which, val){
 
 function screenEmail(){
   return `<div class="screen" id="scr-email">
-    ${squarePhotoSlot("48.jpg", "Color Analysis Pro")}
+    ${squarePhotoSlot("48.png", "Color Analysis Pro")}
     <h2 style="text-align:center;">¡Tu análisis está listo!</h2>
     <p style="text-align:center;">¿A dónde te enviamos tu guía de color y estilo?</p>
     <input type="email" class="email-input" id="emailInput" placeholder="tu@email.com" autocomplete="email">
@@ -1295,7 +1295,7 @@ function screenResults(){
 
       <div class="card bonus-list">
         <h3>Tus 7 bonos incluidos</h3>
-        <!-- Reemplazá este bloque por <img src="tu-imagen.jpg" alt="Mockup de los 7 bonos"> -->
+        <!-- Reemplazá este bloque por <img src="tu-imagen.png" alt="Mockup de los 7 bonos"> -->
         <div class="photo-slot">
           <div class="ph-icon">🖼️</div>
           <div class="ph-text">Espacio para foto/mockup de los bonos<br>(ideal: 1000×625px aprox.)</div>
