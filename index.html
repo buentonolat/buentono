@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Color Analysis Pro — Descubrí tu paleta de color personalizada</title>
+<meta name="description" content="Test de colorimetría personal con IA. Descubrí tu estación de color, tu paleta ideal y recibí tu guía completa + 7 bonos.">
+
+<!-- =========================================================
+     META PIXEL — reemplazar TU_PIXEL_ID antes de publicar
+     ========================================================= -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', 'TU_PIXEL_ID');
+fbq('track', 'PageView');
+</script>
+
+<style>
+:root{
+  --purple:#5B2A6B;
+  --purple-dark:#3B1B47;
+  --purple-light:#8155A0;
+  --gold:#C9A227;
+  --gold-light:#E7C765;
+  --cream:#FBF6EC;
+  --cream-soft:#F3ECDD;
+  --charcoal:#2B2420;
+  --grey-text:#6B6252;
+  --line:#E2D8C3;
+  --green-mp:#00A650;
+  --error:#B23A3A;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 8px 24px rgba(59,27,71,0.12);
+  --maxw:460px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--cream);
+  color:var(--charcoal);
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{
+  font-family:Georgia,"Times New Roman",serif;
+  color:var(--purple-dark);
+  margin:0 0 8px 0;
+  line-height:1.25;
+}
+p{margin:0 0 14px 0; line-height:1.5; color:var(--charcoal);}
+img{max-width:100%; display:block;}
+button{font-family:inherit;}
+a{color:var(--purple);}
+
+#app{
+  max-width:var(--maxw);
+  margin:0 auto;
+  min-height:100vh;
+  background:var(--cream);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+
+.screen{
+  display:none;
+  flex-direction:column;
+  padding:28px 22px 40px;
+  min-height:100vh;
+  animation:fadeIn .35s ease;
+}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+/* ---------- top nav / progress ---------- */
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:22px;
+}
+.back-btn{
+  background:none;border:none;cursor:pointer;
+  font-size:20px; color:var(--purple-dark); padding:4px;
+  line-height:1;
+}
+.phase-label{
+  font-size:12px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--purple); font-weight:700;
+}
+.progress-track{
+  flex:1;
+  height:6px;
+  background:var(--cream-soft);
+  border-radius:6px;
+  overflow:hidden;
+  border:1px solid var(--line);
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--purple),var(--gold));
+  width:0%;
+  transition:width .4s ease;
+}
+
+/* ---------- question ---------- */
+.q-title{
+  font-size:22px;
+  margin-bottom:6px;
+}
+.q-sub{
+  font-size:13.5px;
+  color:var(--grey-text);
+  margin-bottom:18px;
+}
+.options{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:18px;
+}
+.options.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.opt{
+  border:1.5px solid var(--line);
+  background:#fff;
+  border-radius:var(--radius-sm);
+  padding:14px 16px;
+  font-size:15px;
+  text-align:left;
+  cursor:pointer;
+  color:var(--charcoal);
+  transition:border-color .15s, background .15s, transform .1s;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.opt:active{transform:scale(0.98);}
+.opt:hover{border-color:var(--purple-light);}
+.opt.selected{
+  border-color:var(--purple);
+  background:linear-gradient(0deg,rgba(91,42,107,.06),rgba(91,42,107,.06)), #fff;
+}
+.opt.selected::after{
+  content:"✓";
+  color:var(--purple);
+  font-weight:700;
+}
+.opt-img{
+  border-radius:var(--radius-sm);
+  overflow:hidden;
+  border:1.5px solid var(--line);
+  cursor:pointer;
+  position:relative;
+  background:#fff;
+  transition:border-color .15s, transform .1s;
+}
+.opt-img:active{transform:scale(0.97);}
+.opt-img.selected{ border-color:var(--purple); box-shadow:0 0 0 2px var(--purple); }
+.opt-img .swatch{
+  width:100%; height:64px;
+  position:relative;
+  overflow:hidden;
+}
+.opt-img .swatch img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+}
+.opt-img .cap{
+  font-size:12px; padding:7px 6px; text-align:center; background:#fff;
+  font-weight:600;
+}
+.opt-color-dot{
+  width:22px; height:22px; border-radius:50%;
+  border:1px solid rgba(0,0,0,.12);
+  flex-shrink:0;
+}
+
+.helper-note{
+  font-size:12px; color:var(--grey-text); margin:-6px 0 14px;
+}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:block;
+  width:100%;
+  border:none;
+  border-radius:999px;
+  padding:16px 20px;
+  font-size:16px;
+  font-weight:700;
+  text-align:center;
+  cursor:pointer;
+  transition:transform .1s, opacity .15s;
+}
+.btn:active{transform:scale(0.98);}
+.btn-primary{
+  background:var(--purple-dark);
+  color:#fff;
+}
+.btn-gold{
+  background:linear-gradient(90deg,var(--gold),var(--gold-light));
+  color:var(--purple-dark);
+}
+.btn-outline{
+  background:transparent;
+  border:1.5px solid var(--purple-dark);
+  color:var(--purple-dark);
+}
+.btn-mp{
+  background:var(--green-mp);
+  color:#fff;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn[disabled]{opacity:.45; pointer-events:none;}
+.btn-row{margin-top:auto; padding-top:18px;}
+
+/* ---------- intro screen ---------- */
+.intro-wheel{
+  width:280px; max-width:100%; margin:14px auto 20px;
+}
+
+.eyebrow{
+  font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--gold); font-weight:700; margin-bottom:8px;
+}
+
+/* ---------- phase complete ---------- */
+.phase-complete{
+  text-align:center;
+}
+.ring{
+  width:104px;height:104px;border-radius:50%;
+  background:var(--purple-dark);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-size:26px; font-weight:800; margin:10px auto 14px;
+  box-shadow:0 0 0 6px rgba(91,42,107,.12);
+}
+.step-track{
+  display:flex; align-items:center; justify-content:center; gap:6px; margin:14px 0 20px;
+}
+.step-dot{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--cream-soft); border:1.5px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px; color:var(--grey-text); font-weight:700;
+}
+.step-dot.done{background:var(--purple); border-color:var(--purple); color:#fff;}
+.step-line{width:26px; height:2px; background:var(--line);}
+.step-line.done{background:var(--purple);}
+.checklist{
+  text-align:left; margin:0 0 20px;
+}
+.checklist .ci{
+  display:flex; align-items:center; gap:10px;
+  padding:11px 14px; background:#fff; border:1px solid var(--line);
+  border-radius:var(--radius-sm); margin-bottom:8px; font-size:14px;
+}
+.checklist .ci .tick{
+  width:20px;height:20px;border-radius:50%;background:var(--cream-soft);
+  color:var(--gold); display:flex;align-items:center;justify-content:center;
+  font-size:12px; flex-shrink:0; border:1px solid var(--gold);
+}
+
+/* ---------- analysis screen ---------- */
+.analysis-wrap{
+  text-align:center; padding-top:40px;
+}
+.spin-badge{
+  width:76px;height:76px;border-radius:50%;
+  background:var(--cream-soft); display:flex; align-items:center; justify-content:center;
+  margin:0 auto 20px; font-size:30px;
+  animation:pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.abar{
+  display:flex; align-items:center; gap:12px; text-align:left;
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius-sm);
+  padding:12px 14px; margin-bottom:12px;
+}
+.abar .aicon{font-size:18px;}
+.abar .atext{flex:1;}
+.abar .alabel{font-size:13px; font-weight:700; margin-bottom:6px;}
+.abar .atrack{height:6px; background:var(--cream-soft); border-radius:6px; overflow:hidden;}
+.abar .afill{height:100%; width:0%; background:var(--purple); transition:width .5s ease;}
+.abar .apct{font-size:12px; color:var(--grey-text); width:32px; text-align:right;}
+
+/* ---------- modal ---------- */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(43,36,32,.55);
+  display:none; align-items:center; justify-content:center; z-index:50; padding:20px;
+}
+.modal-overlay.active{display:flex;}
+.modal-box{
+  background:#fff; border-radius:18px; padding:26px 22px; max-width:360px; width:100%;
+  text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+.modal-eyebrow{
+  font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--grey-text);
+  font-weight:700; margin-bottom:10px;
+}
+.modal-q{font-size:19px; font-family:Georgia,serif; color:var(--purple-dark); margin-bottom:20px;}
+.modal-btns{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.modal-btns button{
+  padding:13px; border-radius:10px; border:1.5px solid var(--line); background:#fff;
+  font-weight:700; font-size:14.5px; cursor:pointer; color:var(--charcoal);
+}
+.modal-btns button.yes{background:var(--purple-dark); color:#fff; border-color:var(--purple-dark);}
+
+/* ---------- email screen ---------- */
+.email-input{
+  width:100%; padding:15px 16px; font-size:16px; border:1.5px solid var(--line);
+  border-radius:var(--radius-sm); margin-bottom:6px; background:#fff;
+}
+.email-input:focus{outline:none; border-color:var(--purple);}
+.field-error{color:var(--error); font-size:12.5px; min-height:16px; margin-bottom:10px;}
+
+/* ---------- RESULTS PAGE ---------- */
+.ticker{
+  background:var(--purple-dark); color:#fff; font-size:11.5px; text-align:center;
+  padding:7px 10px; letter-spacing:.01em;
+}
+.urgency{
+  background:linear-gradient(90deg,var(--gold-light),var(--gold));
+  color:var(--purple-dark); text-align:center; padding:9px 10px; font-size:12.5px; font-weight:700;
+}
+.urgency #timer{font-variant-numeric:tabular-nums; font-size:14px;}
+.results-body{padding:22px 20px 40px;}
+.res-title{font-size:24px; text-align:center; margin-bottom:4px;}
+.res-title .season-name{color:var(--purple); display:block; font-size:27px;}
+.res-sub{text-align:center; color:var(--grey-text); font-size:13.5px; margin-bottom:18px;}
+
+.res-wheel-wrap{width:300px; max-width:100%; margin:0 auto 18px; position:relative;}
+.res-wheel-wrap svg{width:100%; height:100%;}
+
+.result-wheel{position:relative; margin:0 auto;}
+.rw-svg-wrap{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);}
+.rw-svg-wrap svg{width:100%; height:100%; display:block;}
+.rw-center{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  color:#fff; font-family:Georgia,serif; font-weight:700;
+  letter-spacing:.06em; pointer-events:none; text-align:center;
+  width:64px; font-size:13px;
+}
+.rw-pointer{
+  position:absolute; transform:translate(-50%,-50%);
+  background:var(--gold); color:var(--purple-dark); font-size:9.5px; font-weight:800;
+  padding:4px 9px; border-radius:20px; white-space:nowrap;
+  box-shadow:0 3px 8px rgba(0,0,0,.18); border:1.5px solid #fff;
+}
+.rw-corner{
+  position:absolute; display:flex; flex-direction:column; align-items:center; gap:4px;
+  width:58px; opacity:.5; transition:opacity .2s;
+}
+.rw-corner.active{opacity:1;}
+.rw-tl{top:0; left:0;}
+.rw-tr{top:0; right:0;}
+.rw-br{bottom:0; right:0;}
+.rw-bl{bottom:0; left:0;}
+.rw-label{font-size:9.5px; font-weight:800; letter-spacing:.04em; color:var(--purple-dark); text-align:center;}
+
+.square-photo-slot{
+  width:100%;
+  max-width:280px;
+  aspect-ratio:1/1;
+  margin:16px auto;
+  border-radius:var(--radius-sm);
+  border:1.5px dashed var(--purple-light);
+  background:var(--cream-soft);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+.square-photo-slot img{width:100%; height:100%; object-fit:cover; display:block;}
+.square-photo-slot .ph-fallback{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  color:var(--grey-text); font-size:12px; text-align:center; padding:0 20px;
+}
+.square-photo-slot .ph-fallback .ic{font-size:26px;}
+
+.wide-photo-slot{
+  width:100%;
+  aspect-ratio:16/10;
+  margin:0 0 18px;
+  border-radius:var(--radius-sm);
+  border:1.5px dashed var(--purple-light);
+  background:var(--cream-soft);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+.wide-photo-slot img{width:100%; height:100%; object-fit:cover; display:block;}
+.wide-photo-slot .ph-fallback{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  color:var(--grey-text); font-size:12px; text-align:center; padding:0 20px;
+}
+.wide-photo-slot .ph-fallback .ic{font-size:26px;}
+
+.swatch-row{display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-bottom:6px;}
+.swatch-row .sw{aspect-ratio:1; border-radius:6px; border:1px solid rgba(0,0,0,.08);}
+.swatch-cap{font-size:13px; font-weight:700; color:var(--purple-dark); margin:16px 0 6px;}
+
+.getbtn{margin:18px 0;}
+
+.card{
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+  padding:18px; margin-bottom:16px; box-shadow:var(--shadow);
+}
+.card h3{font-size:16px; margin-bottom:12px;}
+.get-list .gi{display:flex; gap:10px; margin-bottom:10px; font-size:14px; align-items:flex-start;}
+.get-list .gi .chk{color:var(--gold); font-weight:900; flex-shrink:0;}
+
+.bonus-list .bi{
+  display:flex; gap:10px; align-items:center; padding:10px 0;
+  border-bottom:1px dashed var(--line); font-size:13.5px;
+}
+.bonus-list .bi:last-child{border-bottom:none;}
+.bonus-list .bi .bnum{
+  width:26px;height:26px;border-radius:50%;background:var(--purple);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;flex-shrink:0;
+}
+.photo-slot{
+  width:100%;
+  aspect-ratio:16/10;
+  border-radius:var(--radius-sm);
+  border:1.5px dashed var(--purple-light);
+  background:var(--cream-soft);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:6px; margin-bottom:16px; overflow:hidden;
+}
+.photo-slot img{width:100%; height:100%; object-fit:cover;}
+.photo-slot .ph-icon{font-size:26px;}
+.photo-slot .ph-text{font-size:11.5px; color:var(--grey-text); text-align:center; padding:0 20px; line-height:1.4;}
+
+.price-box{
+  background:#fff; border:2px solid var(--purple); border-radius:var(--radius);
+  padding:20px; margin-bottom:16px; box-shadow:var(--shadow);
+}
+.promo{
+  display:flex; align-items:center; gap:10px; background:var(--cream-soft);
+  border-radius:var(--radius-sm); padding:10px 12px; font-size:12.5px; margin-bottom:14px;
+}
+.promo .pctag{
+  background:var(--purple-dark); color:#fff; font-weight:800; font-size:11px;
+  border-radius:6px; padding:4px 8px;
+}
+.price-line{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+.price-line .lbl{font-size:14px; color:var(--grey-text);}
+.price-line .old{
+  text-decoration:line-through; color:var(--grey-text); font-size:15px; margin-right:8px;
+}
+.price-line .new{font-size:26px; font-weight:800; color:var(--purple-dark);}
+.pay-btns{display:flex; flex-direction:column; gap:10px; margin-bottom:14px;}
+.fine-print{font-size:10.5px; color:var(--grey-text); line-height:1.5; margin-bottom:12px;}
+.secure-row{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  font-size:11px; color:var(--grey-text); margin-bottom:6px;
+}
+
+.guarantee{
+  text-align:center; border:1.5px dashed var(--gold); border-radius:var(--radius);
+  padding:18px; margin-bottom:16px; background:var(--cream-soft);
+}
+.guarantee .seal{font-size:34px; margin-bottom:6px;}
+
+.social-line{
+  text-align:center; font-size:12px; color:var(--grey-text); margin-bottom:16px;
+}
+.social-line b{color:var(--purple-dark);}
+
+.trust-grid{display:flex; flex-direction:column; gap:12px;}
+.trust-item{display:flex; gap:12px; align-items:flex-start;}
+.trust-item .ic{
+  width:36px;height:36px;border-radius:10px;background:var(--cream-soft);
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;
+}
+.trust-item .tt{font-size:13.5px; font-weight:700; margin-bottom:2px;}
+.trust-item .td{font-size:12.5px; color:var(--grey-text);}
+
+.faq-item{border-bottom:1px solid var(--line); padding:12px 0;}
+.faq-q{
+  display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+  font-weight:700; font-size:14px;
+}
+.faq-a{font-size:13px; color:var(--grey-text); margin-top:8px; display:none; line-height:1.6;}
+.faq-item.open .faq-a{display:block;}
+.faq-item.open .faq-q .plus{transform:rotate(45deg);}
+.faq-q .plus{transition:transform .15s; font-size:18px; color:var(--purple);}
+
+.footer-note{
+  text-align:center; font-size:10.5px; color:var(--grey-text); padding:20px 20px 34px; line-height:1.6;
+}
+.footer-note a{color:var(--grey-text); text-decoration:underline;}
+
+.sticky-cta{
+  position:sticky; bottom:0; background:linear-gradient(0deg,var(--cream) 60%,rgba(251,246,236,0));
+  padding:14px 20px 18px;
+}
+
+@media (min-width:520px){
+  #app{box-shadow:0 0 40px rgba(0,0,0,.06);}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- MODALS -->
+  <div class="modal-overlay" id="modalTryOn">
+    <div class="modal-box">
+      <div class="modal-eyebrow">Pregunta rápida</div>
+      <div class="modal-q">¿Preparamos una prueba virtual (AI try-on) con tus mejores colores?</div>
+      <div class="modal-btns">
+        <button onclick="answerModal('tryon', false)">Ahora no</button>
+        <button class="yes" onclick="answerModal('tryon', true)">Sí, quiero</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalHair">
+    <div class="modal-box">
+      <div class="modal-eyebrow">Pregunta rápida</div>
+      <div class="modal-q">¿Querés que incluyamos una guía de color de cabello?</div>
+      <div class="modal-btns">
+        <button onclick="answerModal('hair', false)">Ahora no</button>
+        <button class="yes" onclick="answerModal('hair', true)">Sí, quiero</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREENS get injected below by JS render, plus static screens here -->
+  <div id="screens"></div>
+
+</div>
+
+<script>
+/* =====================================================================
+   CONFIGURACIÓN — Editá estos valores antes de publicar
+   ===================================================================== */
+const CONFIG = {
+  brandName: "Color Analysis Pro",
+  mpCheckoutUrl: "https://link.mercadopago.com.ar/TU_LINK_DE_PAGO",   // reemplazar
+  cardCheckoutUrl: "https://link.mercadopago.com.ar/TU_LINK_DE_PAGO", // reemplazar (o mismo link)
+  priceOld: "$44.999",
+  priceNew: "$17.999",
+  currency: "ARS",
+  promoCode: "COLOR26",
+  promoDiscountLabel: "60% OFF",
+  countdownMinutes: 15,
+  supportEmail: "hola@coloranalysispro.com" // reemplazar
+};
+
+/* =====================================================================
+   DATOS DE LAS 12 ESTACIONES
+   (mismo contenido que la guía / ebook, para consistencia total)
+   ===================================================================== */
+const SEASON_DATA = {
+  bright_winter: {
+    group:"INVIERNO", name:"Invierno Brillante",
+    tagline:"Alto contraste, colores puros y una presencia magnética",
+    best:[["Blanco puro","#FFFFFF"],["Negro azabache","#0B0B0C"],["Rojo verdadero","#D0102A"],["Fucsia eléctrico","#E10E7A"],["Azul rey","#0033A0"],["Esmeralda","#00A876"]],
+    neutrals:[["Negro","#0B0B0C"],["Blanco puro","#FFFFFF"],["Gris carbón","#2B2B30"],["Azul marino frío","#0B1F4B"]],
+    avoid:[["Naranja quemado","#C1571A"],["Mostaza","#C9A227"],["Marrón cálido","#8A5A34"]],
+    metals:"Plata, platino y oro blanco.",
+    lip:"Rojo verdadero o fucsia intenso"
+  },
+  true_winter: {
+    group:"INVIERNO", name:"Invierno Verdadero (Frío)",
+    tagline:"El invierno más frío: nitidez y elegancia glacial",
+    best:[["Azul hielo","#7FB8E0"],["Azul rey","#0033A0"],["Fucsia frío","#D6127A"],["Verde esmeralda","#00A876"],["Ciruela","#5C2A5E"],["Blanco puro","#FFFFFF"]],
+    neutrals:[["Negro","#0B0B0C"],["Blanco puro","#FFFFFF"],["Gris medio frío","#9AA0A6"],["Azul marino","#0B1F4B"]],
+    avoid:[["Naranja","#D2691E"],["Mostaza","#C9A227"],["Marrón cálido","#8A5A34"]],
+    metals:"Plata y platino.",
+    lip:"Rojo cereza frío o fucsia"
+  },
+  dark_winter: {
+    group:"INVIERNO", name:"Invierno Oscuro (Profundo)",
+    tagline:"Profundidad, riqueza de color e intensidad controlada",
+    best:[["Negro","#0B0B0C"],["Borgoña","#5C0A21"],["Verde botella","#0B3D2E"],["Azul medianoche","#08123B"],["Ciruela profundo","#3E1F47"],["Fucsia profundo","#9E1068"]],
+    neutrals:[["Negro","#0B0B0C"],["Gris carbón","#2B2B30"],["Azul medianoche","#08123B"],["Blanco puro","#FFFFFF"]],
+    avoid:[["Pastel claro","#F3D9E4"],["Beige claro","#E8DCC8"],["Amarillo pálido","#F2E7A6"]],
+    metals:"Plata oscura, platino y oro blanco.",
+    lip:"Borgoña o rojo profundo"
+  },
+  bright_spring: {
+    group:"PRIMAVERA", name:"Primavera Brillante",
+    tagline:"Energía, calidez y color a todo volumen",
+    best:[["Coral","#FF6F5E"],["Turquesa cálido","#00B7A8"],["Amarillo dorado","#FFC72C"],["Verde primavera","#4CB944"],["Fucsia cálido","#F0227A"],["Rojo naranja","#F03A17"]],
+    neutrals:[["Marfil","#FFF6E8"],["Camel","#D9A24B"],["Marrón cálido claro","#8A5A34"],["Azul marino cálido","#1B2A4A"]],
+    avoid:[["Negro puro","#0B0B0C"],["Gris frío","#8C9199"],["Malva apagado","#A98CA0"]],
+    metals:"Oro amarillo brillante.",
+    lip:"Coral o naranja rosado"
+  },
+  true_spring: {
+    group:"PRIMAVERA", name:"Primavera Verdadera (Cálida)",
+    tagline:"La calidez más pura de las doce estaciones",
+    best:[["Durazno","#FFB07C"],["Amarillo dorado","#FFC72C"],["Verde manzana","#8DC63F"],["Coral cálido","#FF7A5C"],["Turquesa cálido","#2CB6A8"],["Rojo tomate","#E8452C"]],
+    neutrals:[["Camel","#D9A24B"],["Marfil","#FFF6E8"],["Marrón cálido","#8A5A34"],["Verde oliva claro","#8A9A5B"]],
+    avoid:[["Negro puro","#0B0B0C"],["Fucsia frío","#D6127A"],["Azul hielo","#B9D8EC"]],
+    metals:"Oro amarillo.",
+    lip:"Coral o durazno intenso"
+  },
+  light_spring: {
+    group:"PRIMAVERA", name:"Primavera Clara",
+    tagline:"Luminosidad, frescura y delicadeza cálida",
+    best:[["Durazno claro","#FFD3B0"],["Amarillo suave","#FFE08A"],["Verde menta cálido","#B7E4C7"],["Coral claro","#FFA07A"],["Turquesa claro","#7ED6C8"],["Rosa cálido claro","#FFC1B6"]],
+    neutrals:[["Marfil","#FFF6E8"],["Camel claro","#E8C79A"],["Beige cálido claro","#EAD9BE"],["Azul marino suave","#33456B"]],
+    avoid:[["Negro puro","#0B0B0C"],["Borgoña oscuro","#4A0A1B"],["Gris carbón","#2B2B30"]],
+    metals:"Oro amarillo claro o rosado.",
+    lip:"Durazno o coral claro"
+  },
+  light_summer: {
+    group:"VERANO", name:"Verano Claro",
+    tagline:"Suavidad fría con luz: la delicadeza hecha color",
+    best:[["Azul cielo","#A9D3E8"],["Rosa polvo","#E7B6C2"],["Lavanda","#C9B8E0"],["Verde salvia claro","#B9CDBB"],["Malva claro","#D3B6C6"],["Gris perla","#C9CBCE"]],
+    neutrals:[["Gris perla","#C9CBCE"],["Azul marino suave","#5A6B8C"],["Blanco suave","#F5F5F2"],["Beige grisáceo claro","#D8D2C6"]],
+    avoid:[["Negro puro","#0B0B0C"],["Naranja quemado","#C1571A"],["Mostaza","#C9A227"]],
+    metals:"Plata u oro blanco suave.",
+    lip:"Rosa frío suave o malva"
+  },
+  true_summer: {
+    group:"VERANO", name:"Verano Verdadero (Frío)",
+    tagline:"Elegancia serena en la gama fría y suave",
+    best:[["Azul acero","#5B84A8"],["Rosa frío","#E48FA6"],["Lavanda medio","#A78FC4"],["Verde salvia","#8FAF97"],["Ciruela suave","#8A5D80"],["Azul marino suave","#334766"]],
+    neutrals:[["Azul marino suave","#334766"],["Gris azulado","#7C8896"],["Blanco suave","#F2F2EF"],["Beige grisáceo","#C7C0B5"]],
+    avoid:[["Naranja","#D2691E"],["Amarillo dorado","#FFC72C"],["Negro puro","#0B0B0C"]],
+    metals:"Plata.",
+    lip:"Rosa frío o frambuesa suave"
+  },
+  soft_summer: {
+    group:"VERANO", name:"Verano Suave",
+    tagline:"El arte de lo apagado: elegancia sin estridencias",
+    best:[["Gris azulado","#8B93A0"],["Rosa polvo","#D3A8B3"],["Verde salvia apagado","#9AAE97"],["Malva","#B79CAE"],["Ciruela apagado","#7A5A72"],["Azul marino suave","#40506B"]],
+    neutrals:[["Gris azulado","#8B93A0"],["Beige rosado","#D8C3BE"],["Marrón grisáceo","#8E7A6E"],["Blanco roto","#EFECE6"]],
+    avoid:[["Negro puro","#0B0B0C"],["Blanco puro","#FFFFFF"],["Naranja brillante","#FF6F1F"]],
+    metals:"Plata mate u oro rosado apagado.",
+    lip:"Rosa apagado o malva"
+  },
+  soft_autumn: {
+    group:"OTOÑO", name:"Otoño Suave",
+    tagline:"Calidez apagada, terrosa y profundamente natural",
+    best:[["Verde oliva","#8A8F52"],["Camel apagado","#C9A876"],["Terracota suave","#C67C58"],["Salmón apagado","#D69A80"],["Mostaza apagada","#C4A24A"],["Turquesa apagado","#6FA79A"]],
+    neutrals:[["Camel apagado","#C9A876"],["Beige cálido","#DCC7A1"],["Marrón cálido apagado","#8E6A4F"],["Verde oliva","#8A8F52"]],
+    avoid:[["Negro puro","#0B0B0C"],["Blanco puro","#FFFFFF"],["Fucsia brillante","#E10E7A"]],
+    metals:"Oro cálido apagado o bronce.",
+    lip:"Terracota o salmón apagado"
+  },
+  true_autumn: {
+    group:"OTOÑO", name:"Otoño Verdadero (Cálido)",
+    tagline:"La calidez terrosa en su versión más rica",
+    best:[["Terracota","#C1512F"],["Mostaza","#C9A227"],["Verde oliva","#6B7A3A"],["Camel","#C08A4E"],["Naranja quemado","#C1571A"],["Rojo ladrillo","#A8412B"]],
+    neutrals:[["Camel","#C08A4E"],["Marrón chocolate","#5A3A22"],["Beige dorado","#D9BC8C"],["Verde oliva","#6B7A3A"]],
+    avoid:[["Negro puro","#0B0B0C"],["Blanco puro","#FFFFFF"],["Rosa frío","#E48FA6"]],
+    metals:"Oro amarillo o bronce.",
+    lip:"Terracota o rojo ladrillo"
+  },
+  dark_autumn: {
+    group:"OTOÑO", name:"Otoño Oscuro (Profundo)",
+    tagline:"Profundidad cálida con carácter",
+    best:[["Marrón chocolate","#4A2E1A"],["Verde bosque profundo","#243B1E"],["Borgoña cálido","#5C1F1F"],["Mostaza profunda","#A8791C"],["Terracota oscura","#8C3A22"],["Rojo óxido","#8A2E1E"]],
+    neutrals:[["Marrón chocolate","#4A2E1A"],["Negro cálido","#1C1712"],["Camel oscuro","#A87538"],["Verde bosque profundo","#243B1E"]],
+    avoid:[["Pastel claro","#F3D9E4"],["Blanco puro","#FFFFFF"],["Azul hielo","#B9D8EC"]],
+    metals:"Oro cálido oscuro, cobre o bronce.",
+    lip:"Borgoña cálido o rojo óxido"
+  }
+};
+// Orden fijo de la rueda (para dibujar y resaltar el resultado)
+const WHEEL_ORDER = ["bright_winter","true_winter","dark_winter","bright_spring","true_spring","light_spring",
+                      "light_summer","true_summer","soft_summer","soft_autumn","true_autumn","dark_autumn"];
+const WHEEL_COLORS = ["#0B1F4B","#0033A0","#00A6C4","#4CB944","#8DC63F","#FFC72C","#C9A227","#C1571A","#8A5A34","#5C1F1F","#3E1F47","#6A28B5"];
+
+/* =====================================================================
+   PREGUNTAS DEL QUIZ
+   deltas: warm(+cálido/-frío) bright(+vivo/-apagado) deep(+oscuro/-claro) contrast(+alto/-bajo)
+   ===================================================================== */
+const QUIZ_STEPS = [
+  // ---------- FASE 1: NATURAL SIGNALS ----------
+  {id:"eye_color", phase:1, title:"¿De qué color son tus ojos?", type:"single", optType:"swatch",
+    options:[
+      {label:"Celeste", swatch:"#8FB8DE", img:3, deltas:{warm:-2,bright:1,deep:-1,contrast:-1}},
+      {label:"Verde", swatch:"#7FA65A", img:4, deltas:{warm:-1,bright:1,deep:0,contrast:0}},
+      {label:"Avellana", swatch:"#8A6A45", img:5, deltas:{warm:1,bright:0,deep:0,contrast:0}},
+      {label:"Ámbar / miel", swatch:"#B5792A", img:6, deltas:{warm:2,bright:1,deep:1,contrast:1}},
+      {label:"Marrón claro", swatch:"#8C6239", img:7, deltas:{warm:1,bright:-1,deep:-1,contrast:-1}},
+      {label:"Marrón oscuro", swatch:"#3B2412", img:8, deltas:{warm:0,bright:0,deep:2,contrast:1}},
+      {label:"Gris", swatch:"#9CA3AA", img:9, deltas:{warm:-2,bright:-1,deep:0,contrast:0}},
+      {label:"Combinados / otro", swatch:"#B7A88E", img:10, deltas:{warm:0,bright:0,deep:0,contrast:0}}
+    ]},
+  {id:"hair_dyed", phase:1, title:"¿Te tenís el pelo teñido?", type:"single", optType:"text",
+    options:[
+      {label:"Sí, actualmente está teñido", deltas:{}},
+      {label:"No, es mi color natural", deltas:{}},
+      {label:"Estuvo teñido, ahora está creciendo", deltas:{}}
+    ]},
+  {id:"hair_color", phase:1, title:"¿Cuál es tu color de pelo natural?", type:"single", optType:"swatch",
+    options:[
+      {label:"Rubio", swatch:"#D9BE86", img:11, deltas:{warm:-1,bright:1,deep:-2,contrast:-2}},
+      {label:"Rubio oscuro", swatch:"#B79A63", img:12, deltas:{warm:0,bright:0,deep:-1,contrast:-1}},
+      {label:"Castaño claro", swatch:"#8C6A45", img:13, deltas:{warm:1,bright:-1,deep:-1,contrast:-1}},
+      {label:"Castaño medio", swatch:"#6B4A2C", img:14, deltas:{warm:1,bright:-1,deep:0,contrast:0}},
+      {label:"Castaño oscuro", swatch:"#3D2817", img:15, deltas:{warm:0,bright:0,deep:1,contrast:1}},
+      {label:"Negro", swatch:"#181410", img:16, deltas:{warm:-1,bright:0,deep:2,contrast:2}},
+      {label:"Rojizo / cobrizo", swatch:"#A94A2C", img:17, deltas:{warm:2,bright:1,deep:0,contrast:0}},
+      {label:"Gris / plateado", swatch:"#B7B7B7", img:18, deltas:{warm:-2,bright:-1,deep:-1,contrast:0}}
+    ]},
+  {id:"skin_tone", phase:1, title:"¿Qué tono de piel tenés?", type:"single", optType:"swatch",
+    options:[
+      {label:"Clara", swatch:"#F1D4B8", img:19, deltas:{warm:-1,bright:0,deep:-2,contrast:0}},
+      {label:"Media", swatch:"#D9AD84", img:20, deltas:{warm:0,bright:0,deep:0,contrast:0}},
+      {label:"Trigueña", swatch:"#B5794F", img:21, deltas:{warm:1,bright:0,deep:1,contrast:0}},
+      {label:"Oscura", swatch:"#7A4E2E", img:22, deltas:{warm:0,bright:0,deep:2,contrast:1}},
+      {label:"No estoy segura", swatch:"#E3D3C0", img:23, deltas:{}}
+    ]},
+  {id:"sun_reaction", phase:1, title:"¿Cómo reacciona tu piel al sol?", type:"single", optType:"text",
+    options:[
+      {label:"Se broncea fácil, casi no se quema", deltas:{warm:2,bright:0,deep:1,contrast:0}},
+      {label:"Se quema fácil, casi no se broncea", deltas:{warm:-2,bright:0,deep:-1,contrast:0}},
+      {label:"Se broncea de a poco, a veces se quema", deltas:{warm:1,bright:0,deep:0,contrast:0}},
+      {label:"A veces se quema, a veces se broncea", deltas:{warm:0,bright:0,deep:0,contrast:0}}
+    ]},
+  {id:"veins", phase:1, title:"Mirá tus venas en la muñeca: ¿son más azules o verdosas?", type:"single", optType:"text",
+    options:[
+      {label:"Más azules o violetas", deltas:{warm:-2,bright:0,deep:0,contrast:0}},
+      {label:"Verdosas u oliva", deltas:{warm:2,bright:0,deep:0,contrast:0}},
+      {label:"Una mezcla de ambas", deltas:{warm:0,bright:0,deep:0,contrast:0}}
+    ]},
+  {id:"white_shade", phase:1, title:"¿Qué blanco te da un look más fresco?", type:"single", optType:"swatch",
+    options:[
+      {label:"Blanco frío / puro", swatch:"#FFFFFF", img:24, deltas:{warm:-2,bright:1,deep:0,contrast:0}},
+      {label:"Crema cálido", swatch:"#F3E3C4", img:25, deltas:{warm:2,bright:-1,deep:0,contrast:0}},
+      {label:"Ambos me quedan bien", swatch:"#F1EEE6", img:26, deltas:{warm:0,bright:0,deep:0,contrast:0}},
+      {label:"No estoy segura", swatch:"#E9E4D8", img:27, deltas:{}}
+    ]},
+  {id:"black_face", phase:1, title:"¿Cómo te queda el negro cerca de la cara?", type:"single", optType:"text",
+    options:[
+      {label:"Marcado y favorecedor", deltas:{deep:2,contrast:2,bright:1}},
+      {label:"Un poco pesado", deltas:{deep:1,contrast:0,bright:-1}},
+      {label:"Demasiado duro", deltas:{deep:-1,contrast:-2,bright:-1}},
+      {label:"Casi no uso negro", deltas:{deep:-1,contrast:-1,bright:0}},
+      {label:"No estoy segura", deltas:{}}
+    ]},
+
+  // ---------- FASE 2: PALETTE DIRECTION ----------
+  {id:"color_mood", phase:2, title:"¿Qué paleta se parece más a tu estilo?", type:"single", optType:"swatch",
+    options:[
+      {label:"Suave y apagada", swatch:"#B79CAE", img:29, deltas:{bright:-2,contrast:-1}},
+      {label:"Clásica y prolija", swatch:"#2B2B30", img:30, deltas:{bright:0,warm:-1,contrast:1}},
+      {label:"Cálida y terrosa", swatch:"#B5792A", img:31, deltas:{warm:2,bright:-1,deep:1}},
+      {label:"Fría y elegante", swatch:"#5B84A8", img:32, deltas:{warm:-2,bright:-1}},
+      {label:"Profunda y dramática", swatch:"#3E1F47", img:33, deltas:{deep:2,contrast:2,bright:1}},
+      {label:"Vibrante y divertida", swatch:"#E10E7A", img:34, deltas:{bright:2,warm:1,contrast:1}}
+    ]},
+  {id:"glow_color", phase:2, title:"Tus amigas te dicen \u201c¡qué luminosa!\u201d cuando usás…", type:"single", optType:"swatch",
+    options:[
+      {label:"Rosa suave", swatch:"#F0C4D0", img:35, deltas:{warm:1,bright:-1,deep:-1}},
+      {label:"Blanco puro", swatch:"#FFFFFF", img:36, deltas:{warm:-1,bright:1,contrast:1}},
+      {label:"Azul marino", swatch:"#0B1F4B", img:37, deltas:{warm:-1,deep:1,contrast:1}},
+      {label:"Caramelo cálido", swatch:"#B5792A", img:38, deltas:{warm:2,deep:1}},
+      {label:"Verde oliva", swatch:"#6B7A3A", img:39, deltas:{warm:2,bright:-1,deep:1}},
+      {label:"Rojo intenso", swatch:"#D0102A", img:40, deltas:{bright:2,contrast:1}},
+      {label:"Durazno claro", swatch:"#FFD3B0", img:41, deltas:{warm:1,deep:-1}},
+      {label:"No lo sé todavía", swatch:"#E3D3C0", img:42, deltas:{}}
+    ]},
+  {id:"accent_colors", phase:2, title:"¿Qué colores de acento usarías con gusto?", sub:"Elegí uno o más.",
+    type:"multi", optType:"dot",
+    options:[
+      {label:"Rojo", swatch:"#D0102A", deltas:{bright:1}},
+      {label:"Coral", swatch:"#FF7A5C", deltas:{warm:1,bright:1}},
+      {label:"Rosa", swatch:"#E48FA6", deltas:{warm:-0.5}},
+      {label:"Lavanda", swatch:"#B9A6D9", deltas:{warm:-1}},
+      {label:"Esmeralda", swatch:"#00A876", deltas:{bright:1,warm:-1}},
+      {label:"Turquesa", swatch:"#00A6C4", deltas:{warm:-1}},
+      {label:"Azul rey", swatch:"#0033A0", deltas:{warm:-1,bright:1,contrast:1}},
+      {label:"Mostaza", swatch:"#C9A227", deltas:{warm:2,bright:-1}},
+      {label:"Borgoña", swatch:"#5C0A21", deltas:{deep:1}},
+      {label:"Ninguno, prefiero minimalismo", swatch:"#C9C2B4", deltas:{bright:-1,contrast:-1}}
+    ]},
+
+  // ---------- FASE 3: COLOR HABITS ----------
+  {id:"neutral_pref", phase:3, title:"¿Qué paleta de neutros te atrae más?", sub:"No lo pienses de más: el primero que te llame la atención.",
+    type:"single", optType:"swatch",
+    options:[
+      {label:"Contraste alto y clásico", swatch:"#111111", img:43, deltas:{contrast:2,bright:1,warm:-1}},
+      {label:"Mezcla suave y difuminada", swatch:"#8B93A0", img:44, deltas:{contrast:-2,bright:-1}},
+      {label:"Claro y fresco", swatch:"#D8D2C6", img:45, deltas:{deep:-2,bright:1,warm:-1,contrast:-1}},
+      {label:"Rico y cálido", swatch:"#8A5A34", img:46, deltas:{warm:2,deep:1}}
+    ]},
+  {id:"hardest", phase:3, title:"¿Qué es lo más difícil a la hora de elegir colores?", type:"single", optType:"text",
+    options:[
+      {label:"Algunos colores me hacen ver cansada", deltas:{}},
+      {label:"Compro colores que después no uso", deltas:{}},
+      {label:"Uso negro casi siempre", deltas:{}},
+      {label:"No sé qué combina con mi pelo y ojos", deltas:{}},
+      {label:"Solo quiero una guía clara", deltas:{}}
+    ]},
+  {id:"avoid_colors", phase:3, title:"¿Qué colores solés evitar?", sub:"Elegí uno o más.", type:"multi", optType:"dot",
+    options:[
+      {label:"Naranja", swatch:"#D2691E", deltas:{}},
+      {label:"Amarillo", swatch:"#F5E400", deltas:{}},
+      {label:"Rosa", swatch:"#E48FA6", deltas:{}},
+      {label:"Violeta", swatch:"#6A28B5", deltas:{}},
+      {label:"Verde", swatch:"#4CB944", deltas:{}},
+      {label:"Azul", swatch:"#0033A0", deltas:{}},
+      {label:"Marrón", swatch:"#5A3A22", deltas:{}},
+      {label:"Blanco", swatch:"#FFFFFF", deltas:{}},
+      {label:"Negro", swatch:"#0B0B0C", deltas:{}},
+      {label:"No evito ninguno", swatch:"#C9C2B4", deltas:{}}
+    ]},
+
+  // ---------- GOALS ----------
+  {id:"goals", phase:4, title:"¿Para qué querés usar tu paleta de colores?", sub:"Elegí uno o más.", type:"multi", optType:"text",
+    options:[
+      {label:"Verme más prolija", deltas:{}},
+      {label:"Armar looks más rápido", deltas:{}},
+      {label:"Renovar mi placard", deltas:{}},
+      {label:"Animarme a un nuevo color de pelo", deltas:{}}
+    ]},
+  {id:"where_use", phase:4, title:"¿Dónde vas a usar tu paleta con más frecuencia?", sub:"Elegí uno o más.", type:"multi", optType:"text",
+    options:[
+      {label:"Looks del día a día", deltas:{}},
+      {label:"Trabajo / looks profesionales", deltas:{}},
+      {label:"Citas y eventos", deltas:{}},
+      {label:"Decisiones de color de pelo", deltas:{}},
+      {label:"Compras online", deltas:{}}
+    ]},
+
+  // ---------- RECOMMENDATIONS ----------
+  {id:"friends_opinion", phase:5, title:"¿Pedís opinión a tus amigas antes de comprar ropa?", type:"single", optType:"text",
+    options:[{label:"A veces", deltas:{}},{label:"Seguido", deltas:{}},{label:"Nunca", deltas:{}}]},
+  {id:"struggle_outfits", phase:5, title:"¿Te cuesta combinar prendas y armar looks completos?", type:"single", optType:"text",
+    options:[{label:"A veces", deltas:{}},{label:"Seguido", deltas:{}},{label:"Nunca", deltas:{}}]},
+  {id:"makeup_pref", phase:5, title:"¿Querés que incluyamos guía de maquillaje?", type:"single", optType:"text",
+    options:[
+      {label:"Sí, para el día a día", deltas:{}},
+      {label:"Sí, para labial y rubor", deltas:{}},
+      {label:"Solo lo esencial", deltas:{}},
+      {label:"No, enfoquémonos en ropa", deltas:{}}
+    ]}
+];
+
+const PHASE_META = {
+  1:{label:"Señales naturales", pct:33},
+  2:{label:"Dirección de paleta", pct:71},
+  3:{label:"Hábitos de color", pct:93},
+  4:{label:"Objetivos", pct:97},
+  5:{label:"Recomendaciones", pct:99}
+};
+
+/* =====================================================================
+   ESTADO
+   ===================================================================== */
+const state = {
+  answers:{},
+  scores:{warm:0,bright:0,deep:0,contrast:0},
+  flow:[],
+  pos:0,
+  resultId:null,
+  wantsTryOn:null,
+  wantsHairGuide:null,
+  email:""
+};
+
+// construir flujo (segmentos explícitos por fase, para evitar ambigüedades)
+(function buildFlow(){
+  const idsByPhase = {1:[],2:[],3:[],4:[],5:[]};
+  QUIZ_STEPS.forEach(q=> idsByPhase[q.phase].push(q.id));
+  const f = ["intro", "reveal"];
+  f.push(...idsByPhase[1]); f.push("phase-complete-1", "single-photo");
+  f.push(...idsByPhase[2]); f.push("phase-complete-2");
+  f.push(...idsByPhase[3]); f.push("phase-complete-3");
+  f.push(...idsByPhase[4]); f.push("goals-confirm");
+  f.push(...idsByPhase[5]);
+  f.push("analysis","email","results");
+  state.flow = f;
+})();
+
+/* =====================================================================
+   RENDER HELPERS
+   ===================================================================== */
+const screensEl = document.getElementById("screens");
+
+function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+
+function progressPct(){
+  const idx = state.pos;
+  return Math.min(100, Math.round((idx/(state.flow.length-2))*100));
+}
+
+function topbar(showBack, phaseLabel){
+  return `<div class="topbar">
+    ${showBack? `<button class="back-btn" onclick="prevScreen()">‹</button>` : `<span style="width:20px"></span>`}
+    <div style="flex:1">
+      <div class="phase-label">${phaseLabel||""}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${progressPct()}%"></div></div>
+    </div>
+  </div>`;
+}
+
+function renderQuestionScreen(step){
+  const multi = step.type==="multi";
+  const currentVal = state.answers[step.id];
+  let optsHtml = "";
+
+  if(step.optType==="swatch"){
+    optsHtml = `<div class="options grid2">` + step.options.map((o,i)=>{
+      const selected = multi ? (Array.isArray(currentVal)&&currentVal.includes(i)) : currentVal===i;
+      const imgTag = o.img
+        ? `<img src="${o.img}.jpg" alt="${esc(o.label)}" onerror="this.style.display='none'">`
+        : "";
+      return `<div class="opt-img ${selected?'selected':''}" onclick="selectOption('${step.id}',${i},${multi})">
+        <div class="swatch" style="background:${o.swatch}">${imgTag}</div>
+        <div class="cap">${esc(o.label)}</div>
+      </div>`;
+    }).join("") + `</div>`;
+  } else if(step.optType==="dot"){
+    optsHtml = `<div class="options">` + step.options.map((o,i)=>{
+      const selected = multi ? (Array.isArray(currentVal)&&currentVal.includes(i)) : currentVal===i;
+      return `<div class="opt ${selected?'selected':''}" onclick="selectOption('${step.id}',${i},${multi})">
+        <span style="display:flex;align-items:center;gap:10px;"><span class="opt-color-dot" style="background:${o.swatch}"></span>${esc(o.label)}</span>
+      </div>`;
+    }).join("") + `</div>`;
+  } else {
+    optsHtml = `<div class="options">` + step.options.map((o,i)=>{
+      const selected = multi ? (Array.isArray(currentVal)&&currentVal.includes(i)) : currentVal===i;
+      return `<div class="opt ${selected?'selected':''}" onclick="selectOption('${step.id}',${i},${multi})">${esc(o.label)}</div>`;
+    }).join("") + `</div>`;
+  }
+
+  const needsBtn = multi;
+  const canContinue = multi ? (Array.isArray(currentVal) && currentVal.length>0) : true;
+
+  return `<div class="screen" id="scr-${step.id}">
+    ${topbar(true, (PHASE_META[step.phase]||{}).label)}
+    <div class="q-title">${esc(step.title)}</div>
+    ${step.sub? `<div class="q-sub">${esc(step.sub)}</div>` : ""}
+    ${optsHtml}
+    ${needsBtn? `<div class="btn-row"><button class="btn btn-primary" id="continueBtn-${step.id}" ${canContinue?'':'disabled'} onclick="nextScreen()">Continuar</button></div>` : ""}
+  </div>`;
+}
+
+function selectOption(stepId, idx, multi){
+  if(multi){
+    const arr = state.answers[stepId] || [];
+    const pos = arr.indexOf(idx);
+    if(pos>-1) arr.splice(pos,1); else arr.push(idx);
+    state.answers[stepId] = arr;
+    renderCurrentScreen(); // re-render to reflect selection + button state
+  } else {
+    state.answers[stepId] = idx;
+    const step = QUIZ_STEPS.find(s=>s.id===stepId);
+    const opt = step.options[idx];
+    if(opt.deltas){
+      for(const k in opt.deltas){ state.scores[k] = (state.scores[k]||0) + opt.deltas[k]; }
+    }
+    renderCurrentScreen();
+    setTimeout(()=>{ nextScreen(); }, 260);
+  }
+}
+
+/* ---------- pantallas especiales ---------- */
+function squarePhotoSlot(filename, altText){
+  return `<div class="square-photo-slot">
+    <img src="${filename}" alt="${esc(altText||'')}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="ph-fallback" style="display:none;">
+      <div class="ic">🖼️</div>
+      <div>Falta la imagen <b>${esc(filename)}</b><br>(subila junto al HTML)</div>
+    </div>
+  </div>`;
+}
+
+function wideImageSlot(filename, altText){
+  return `<div class="wide-photo-slot">
+    <img src="${filename}" alt="${esc(altText||'')}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="ph-fallback" style="display:none;">
+      <div class="ic">🖼️</div>
+      <div>Falta la imagen <b>${esc(filename)}</b><br>(subila junto al HTML)</div>
+    </div>
+  </div>`;
+}
+
+function screenIntro(){
+  return `<div class="screen" id="scr-intro">
+    <div class="eyebrow" style="text-align:center">${CONFIG.brandName}</div>
+    <h1 style="text-align:center; font-size:26px;">Descubrí tu Estación de Color</h1>
+    <p style="text-align:center">Entender tu paleta natural puede transformar tu placard, potenciar tu imagen y resaltar tu belleza natural.</p>
+    ${squarePhotoSlot("1.jpg", "Color Analysis Pro")}
+    <div class="checklist" style="margin-top:6px;">
+      <div class="ci"><span class="tick">✓</span>Tu paleta de ropa ideal</div>
+      <div class="ci"><span class="tick">✓</span>Maquillaje, cabello y metales</div>
+      <div class="ci"><span class="tick">✓</span>Resultado + guía completa al final</div>
+    </div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="nextScreen()">Empezar el test →</button></div>
+    <p style="text-align:center; font-size:11px; color:var(--grey-text); margin-top:14px;">Tarda menos de 3 minutos.</p>
+  </div>`;
+}
+
+function screenReveal(){
+  return `<div class="screen" id="scr-reveal">
+    ${topbar(true)}
+    ${wideImageSlot("2.jpg", "Color Analysis Pro")}
+    <h2>Tu análisis de color va a revelar:</h2>
+    <div class="checklist">
+      <div class="ci"><span class="tick">✓</span>Tu dirección de paleta estacional</div>
+      <div class="ci"><span class="tick">✓</span>Los mejores colores para tu ropa</div>
+      <div class="ci"><span class="tick">✓</span>Tus neutros y colores de acento</div>
+      <div class="ci"><span class="tick">✓</span>Guía de maquillaje según tu color</div>
+    </div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="nextScreen()">Continuar</button></div>
+  </div>`;
+}
+
+function screenSinglePhoto(){
+  return `<div class="screen" id="scr-single-photo">
+    ${topbar(false)}
+    ${wideImageSlot("28.jpg", "Color Analysis Pro")}
+    <h2>Vamos muy bien</h2>
+    <p>Ya tenemos tus señales naturales. Ahora vamos a definir la dirección exacta de tu paleta.</p>
+    <div class="btn-row"><button class="btn btn-primary" onclick="nextScreen()">Continuar</button></div>
+  </div>`;
+}
+
+function phaseCompleteScreen(phaseNum){
+  const meta = PHASE_META[phaseNum];
+  const items = {
+    1:["Color de ojos y piel registrados","Pistas de subtono capturadas","Señal de profundidad (negro) lista"],
+    2:["Dirección de paleta definida","Colores de acento mapeados"],
+    3:["Preferencia de neutros lista","Hábitos de color registrados","93% completado — ya casi terminamos"]
+  }[phaseNum] || [];
+  const isLast = phaseNum===3;
+  return `<div class="screen" id="scr-phase-complete-${phaseNum}">
+    ${topbar(false)}
+    <div class="phase-complete">
+      <div class="ring">${meta.pct}%</div>
+      <h2>${isLast? "Ya casi está: nos falta un último tramo" : "¡Buenísimo! Tus señales de color están tomadas"}</h2>
+      <p>${isLast? "Faltan solo un par de preguntas para calcular tu estación de color." : "Ahora vamos a traducir esas señales en una dirección de paleta que puedas usar de verdad."}</p>
+      <div class="checklist">
+        ${items.map(it=>`<div class="ci"><span class="tick">✓</span>${it}</div>`).join("")}
+      </div>
+      <button class="btn btn-primary" onclick="nextScreen()">Continuar</button>
+    </div>
+  </div>`;
+}
+
+function screenGoalsConfirm(){
+  return `<div class="screen" id="scr-goals-confirm">
+    ${topbar(false)}
+    <div class="phase-complete">
+      <h2>Perfecto, vamos a personalizar todo según tus objetivos</h2>
+      <p>Vamos a usar tus objetivos de estilo para ajustar las recomendaciones finales.</p>
+      <div class="checklist">
+        <div class="ci"><span class="tick">✓</span>Objetivos de estilo registrados</div>
+        <div class="ci"><span class="tick">✓</span>Contexto de uso registrado</div>
+        <div class="ci"><span class="tick">✓</span>Siguiente: últimas preguntas</div>
+      </div>
+      <button class="btn btn-primary" onclick="nextScreen()">Continuar</button>
+    </div>
+  </div>`;
+}
+
+function screenAnalysis(){
+  return `<div class="screen" id="scr-analysis">
+    <div class="analysis-wrap">
+      <div class="spin-badge">✨</div>
+      <h2>Analizando tus respuestas…</h2>
+      <p class="q-sub">Esto solo toma un momento</p>
+      <div class="abar"><div class="atext">
+          <div class="alabel">Revisando tus preferencias de color</div>
+          <div class="atrack"><div class="afill" id="af1"></div></div>
+        </div><div class="apct" id="ap1">0%</div></div>
+      <div class="abar"><div class="atext">
+          <div class="alabel">Cruzando subtono, pelo y ojos</div>
+          <div class="atrack"><div class="afill" id="af2"></div></div>
+        </div><div class="apct" id="ap2">0%</div></div>
+      <div class="abar"><div class="atext">
+          <div class="alabel">Preparando tu reporte de color</div>
+          <div class="atrack"><div class="afill" id="af3"></div></div>
+        </div><div class="apct" id="ap3">0%</div></div>
+    </div>
+  </div>`;
+}
+
+function runAnalysisSequence(){
+  const bars = [["af1","ap1"],["af2","ap2"],["af3","ap3"]];
+  let i=0;
+  function step(){
+    if(i>=bars.length){
+      setTimeout(()=>{ document.getElementById("modalTryOn").classList.add("active"); }, 400);
+      return;
+    }
+    const [fillId,pctId] = bars[i];
+    let p=0;
+    const iv = setInterval(()=>{
+      p += 4;
+      if(p>100) p=100;
+      document.getElementById(fillId).style.width = p+"%";
+      document.getElementById(pctId).textContent = p+"%";
+      if(p>=100){ clearInterval(iv); i++; setTimeout(step, 200); }
+    }, 35);
+  }
+  step();
+}
+
+function answerModal(which, val){
+  if(which==="tryon"){
+    state.wantsTryOn = val;
+    document.getElementById("modalTryOn").classList.remove("active");
+    setTimeout(()=>{ document.getElementById("modalHair").classList.add("active"); }, 300);
+  } else if(which==="hair"){
+    state.wantsHairGuide = val;
+    document.getElementById("modalHair").classList.remove("active");
+    setTimeout(()=>{ nextScreen(); }, 300);
+  }
+}
+
+function screenEmail(){
+  return `<div class="screen" id="scr-email">
+    ${squarePhotoSlot("48.jpg", "Color Analysis Pro")}
+    <h2 style="text-align:center;">¡Tu análisis está listo!</h2>
+    <p style="text-align:center;">¿A dónde te enviamos tu guía de color y estilo?</p>
+    <input type="email" class="email-input" id="emailInput" placeholder="tu@email.com" autocomplete="email">
+    <div class="field-error" id="emailError"></div>
+    <p style="font-size:12px; color:var(--grey-text);">🔒 Respetamos tu privacidad. Te enviamos una copia de tus resultados para que los tengas siempre a mano.</p>
+    <div class="btn-row"><button class="btn btn-primary" onclick="submitEmail()">Ver mis resultados →</button></div>
+  </div>`;
+}
+
+function submitEmail(){
+  const val = document.getElementById("emailInput").value.trim();
+  const errEl = document.getElementById("emailError");
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!re.test(val)){
+    errEl.textContent = "Ingresá un email válido para continuar.";
+    return;
+  }
+  errEl.textContent = "";
+  state.email = val;
+  if(typeof fbq==="function"){ fbq('track','Lead'); }
+  computeResult();
+  nextScreen();
+}
+
+/* =====================================================================
+   CÁLCULO DEL RESULTADO
+   ===================================================================== */
+function computeResult(){
+  const s = state.scores;
+  const warm = s.warm||0, bright = s.bright||0, deep = s.deep||0, contrast = s.contrast||0;
+  let group, sub;
+  if(warm >= 0){
+    if(bright >= 0){
+      group="spring";
+      if(deep < -1) sub="light_spring";
+      else if(bright > 4) sub="bright_spring";
+      else sub="true_spring";
+    } else {
+      group="autumn";
+      if(deep > 1) sub="dark_autumn";
+      else if(bright < -3) sub="soft_autumn";
+      else sub="true_autumn";
+    }
+  } else {
+    if(bright >= 0 || contrast >= 1){
+      group="winter";
+      if(deep > 1) sub="dark_winter";
+      else if(bright > 4) sub="bright_winter";
+      else sub="true_winter";
+    } else {
+      group="summer";
+      if(deep < -1) sub="light_summer";
+      else if(bright < -3) sub="soft_summer";
+      else sub="true_summer";
+    }
+  }
+  state.resultId = sub;
+}
+
+/* =====================================================================
+   RUEDA SVG
+   ===================================================================== */
+function buildWheelSVG(highlightId, size, startDeg){
+  const start = (typeof startDeg==="number") ? startDeg*Math.PI/180 : -Math.PI/2;
+  const cx=size/2, cy=size/2, r=size/2-6, rInner=r*0.42;
+  let paths="";
+  const n=12;
+  for(let i=0;i<n;i++){
+    const a0 = start + (i/n)*2*Math.PI;
+    const a1 = start + ((i+1)/n)*2*Math.PI;
+    const x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0);
+    const x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+    const isHighlight = WHEEL_ORDER[i]===highlightId;
+    const op = highlightId ? (isHighlight? 1 : 0.28) : 1;
+    paths += `<path d="M${cx},${cy} L${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 0 1 ${x1.toFixed(2)},${y1.toFixed(2)} Z"
+      fill="${WHEEL_COLORS[i]}" opacity="${op}" stroke="#FBF6EC" stroke-width="1.5"/>`;
+  }
+  return `<svg viewBox="0 0 ${size} ${size}">${paths}<circle cx="${cx}" cy="${cy}" r="${rInner}" fill="#3B1B47"/></svg>`;
+}
+
+const WHEEL_SHORT_LABEL = {
+  bright_winter:"Brillante", true_winter:"Frío", dark_winter:"Profundo",
+  bright_spring:"Brillante", true_spring:"Cálida", light_spring:"Clara",
+  light_summer:"Claro", true_summer:"Frío", soft_summer:"Suave",
+  soft_autumn:"Suave", true_autumn:"Cálido", dark_autumn:"Profundo"
+};
+const GROUP_LABELS_ES = {winter:"INVIERNO", spring:"PRIMAVERA", summer:"VERANO", autumn:"OTOÑO"};
+const GROUP_ICON = {winter:"❄️", spring:"🌸", summer:"☀️", autumn:"🍂"};
+function groupOfSeason(id){ return SEASON_DATA[id].group==="INVIERNO"?"winter":SEASON_DATA[id].group==="PRIMAVERA"?"spring":SEASON_DATA[id].group==="VERANO"?"summer":"autumn"; }
+
+/* Rueda de resultados: 4 grupos en las esquinas (con espacio para foto),
+   círculo central "TÚ" y una etiqueta que apunta a tu estación exacta. */
+function buildResultWheel(highlightId, size, centerText){
+  const wheelSize = Math.round(size*0.6);
+  const svg = buildWheelSVG(highlightId, wheelSize, -180);
+  const idx = highlightId ? WHEEL_ORDER.indexOf(highlightId) : -1;
+  let pointerHtml = "";
+  if(idx>-1){
+    const midDeg = -180 + idx*30 + 15;
+    const midRad = midDeg*Math.PI/180;
+    const R = (wheelSize/2)*1.14;
+    const px = size/2 + R*Math.cos(midRad);
+    const py = size/2 + R*Math.sin(midRad);
+    pointerHtml = `<div class="rw-pointer" style="left:${px.toFixed(1)}px; top:${py.toFixed(1)}px;">★ ${WHEEL_SHORT_LABEL[highlightId]}</div>`;
+  }
+
+  const corners = [
+    {g:"winter", cls:"rw-tl"}, {g:"spring", cls:"rw-tr"},
+    {g:"summer", cls:"rw-br"}, {g:"autumn", cls:"rw-bl"}
+  ];
+  const activeGroup = highlightId ? groupOfSeason(highlightId) : null;
+  const cornersHtml = corners.map(c=>{
+    const active = activeGroup===c.g;
+    return `<div class="rw-corner ${c.cls} ${active?'active':''}">
+      <div class="rw-label">${GROUP_LABELS_ES[c.g]}</div>
+    </div>`;
+  }).join("");
+
+  return `<div class="result-wheel" style="width:${size}px;height:${size}px;">
+    ${cornersHtml}
+    <div class="rw-svg-wrap" style="width:${wheelSize}px;height:${wheelSize}px;">${svg}</div>
+    <div class="rw-center">${centerText||"TÚ"}</div>
+    ${pointerHtml}
+  </div>`;
+}
+
+/* =====================================================================
+   RESULTADOS / VENTA
+   ===================================================================== */
+function screenResults(){
+  const season = SEASON_DATA[state.resultId];
+  const wheel = buildResultWheel(state.resultId, 300);
+  const bestSw = season.best.map(([n,h])=>`<div class="sw" style="background:${h}" title="${esc(n)}"></div>`).join("");
+
+  const hardestAns = getAnswerLabel("hardest");
+  let hookLine = "Dejá de adivinar frente al placard.";
+  if(hardestAns){
+    if(hardestAns.includes("compro")) hookLine = "Como nos contaste que a veces comprás colores que después no usás, esta guía está pensada exactamente para eso.";
+    else if(hardestAns.includes("cansada")) hookLine = "Vas a entender por qué algunos colores te apagan — y cuáles hacen exactamente lo contrario.";
+    else if(hardestAns.includes("negro")) hookLine = "Vas a descubrir alternativas a tu negro de siempre que te van a favorecer incluso más.";
+    else if(hardestAns.includes("combina")) hookLine = "Vas a saber, de una vez, qué combina con tu pelo y tus ojos.";
+  }
+
+  return `<div class="screen active" id="scr-results" style="padding:0;">
+    <div class="ticker" id="tickerText">Sofía acaba de comprar su análisis · Es ${season.name}</div>
+    <div class="urgency">Tu resultado está reservado por <span id="timer">15:00</span></div>
+    <div class="results-body">
+      <div class="eyebrow" style="text-align:center;">Tu análisis está listo</div>
+      <h1 class="res-title">Sos<span class="season-name">${esc(season.name)}</span></h1>
+      <p class="res-sub">${esc(season.tagline)}</p>
+
+      <div class="res-wheel-wrap">${wheel}</div>
+
+      <div class="swatch-cap">Vista previa de tu paleta</div>
+      <div class="swatch-row">${bestSw}</div>
+
+      <div class="btn-row getbtn"><button class="btn btn-gold" onclick="scrollToOffer()">QUIERO MI GUÍA COMPLETA →</button></div>
+
+      <div class="card">
+        <h3>${esc(hookLine)}</h3>
+        <p style="font-size:13.5px; color:var(--grey-text); margin:0;">Tu guía completa incluye las 12 estaciones explicadas, pero con tu capítulo — <b>${esc(season.name)}</b> — listo para usar desde el minuto uno: mejores colores, neutros, maquillaje, cabello y metales.</p>
+      </div>
+
+      <div class="card get-list">
+        <h3>Esto es lo que vas a recibir</h3>
+        <div class="gi"><span class="chk">✓</span>Tu paleta completa: mejores colores, neutros y colores de acento</div>
+        <div class="gi"><span class="chk">✓</span>Guía de maquillaje según tu estación (base, labios, mejillas, ojos)</div>
+        <div class="gi"><span class="chk">✓</span>Recomendaciones de color de cabello y metales</div>
+        <div class="gi"><span class="chk">✓</span>Las 12 estaciones completas, por si querés confirmar el resultado</div>
+        <div class="gi"><span class="chk">✓</span>7 bonos exclusivos (abajo te contamos cuáles)</div>
+      </div>
+
+      <div class="card bonus-list">
+        <h3>Tus 7 bonos incluidos</h3>
+        <!-- Reemplazá este bloque por <img src="tu-imagen.jpg" alt="Mockup de los 7 bonos"> -->
+        <div class="photo-slot">
+          <div class="ph-icon">🖼️</div>
+          <div class="ph-text">Espacio para foto/mockup de los bonos<br>(ideal: 1000×625px aprox.)</div>
+        </div>
+        <div class="bi"><span class="bnum">1</span>Guía de Compras Inteligente</div>
+        <div class="bi"><span class="bnum">2</span>Planificador de Guardarropa Cápsula</div>
+        <div class="bi"><span class="bnum">3</span>Guía Completa de Maquillaje</div>
+        <div class="bi"><span class="bnum">4</span>Guía de Color de Cabello</div>
+        <div class="bi"><span class="bnum">5</span>Tarjeta de Bolsillo para Compras</div>
+        <div class="bi"><span class="bnum">6</span>Fórmulas de Combinación de Colores</div>
+        <div class="bi"><span class="bnum">7</span>Guía de Joyería y Accesorios</div>
+      </div>
+
+      <div id="offerAnchor"></div>
+      <div class="price-box">
+        <div class="promo"><span class="pctag">${esc(CONFIG.promoDiscountLabel)}</span> Código <b>${esc(CONFIG.promoCode)}</b> aplicado automáticamente</div>
+        <div class="price-line">
+          <span class="lbl">Total hoy</span>
+          <span><span class="old">${esc(CONFIG.priceOld)}</span><span class="new">${esc(CONFIG.priceNew)}</span></span>
+        </div>
+        <div class="pay-btns">
+          <button class="btn btn-mp" onclick="goToCheckout('mp')">Quiero mi Paleta — Mercado Pago</button>
+          <button class="btn btn-outline" onclick="goToCheckout('card')">Quiero mi Paleta — Tarjeta</button>
+        </div>
+        <div class="secure-row">🔒 Pago 100% seguro</div>
+        <div class="fine-print">Producto digital de entrega inmediata. Acceso único, sin suscripción ni cargos recurrentes.</div>
+      </div>
+
+      <div class="guarantee">
+        <div class="seal">🛡️</div>
+        <h3>Garantía de 30 días</h3>
+        <p style="margin:0; font-size:13px;">Si sentís que no te sirvió, escribinos dentro de los 30 días y te devolvemos el 100% de tu dinero.</p>
+      </div>
+
+      <div class="card trust-grid">
+        <div class="trust-item"><div class="ic">🎨</div><div><div class="tt">Sistema de 12 estaciones</div><div class="td">Basado en la metodología de colorimetría estacional que usan asesores de imagen.</div></div></div>
+        <div class="trust-item"><div class="ic">⚡</div><div><div class="tt">Entrega inmediata</div><div class="td">Accedés a tu guía completa apenas confirmás el pago.</div></div></div>
+        <div class="trust-item"><div class="ic">🔁</div><div><div class="tt">Guía para reutilizar siempre</div><div class="td">No es contenido de una sola lectura: es tu referencia permanente.</div></div></div>
+      </div>
+
+      <div class="card" id="faqCard">
+        <h3>Preguntas frecuentes</h3>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Cómo recibo mi guía? <span class="plus">+</span></div><div class="faq-a">Por email, en formato PDF, lista para ver desde el celular o para imprimir.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Es una suscripción? <span class="plus">+</span></div><div class="faq-a">No. Es un pago único por acceso de por vida a tu guía.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Y si no es mi color exacto? <span class="plus">+</span></div><div class="faq-a">Tu guía incluye las 12 estaciones completas, así que podés comparar y confirmar tu resultado.</div></div>
+      </div>
+
+      <div class="btn-row"><button class="btn btn-gold" onclick="goToCheckout('mp')">QUIERO MI PALETA AHORA →</button></div>
+
+      <div class="footer-note">
+        ${esc(CONFIG.brandName)}. Este producto es una guía de estilo personal y no reemplaza el asesoramiento de un profesional de imagen en cabina.<br>
+        <a href="#">Política de privacidad</a> · <a href="#">Términos</a> · <a href="mailto:${esc(CONFIG.supportEmail)}">${esc(CONFIG.supportEmail)}</a><br>
+        © ${new Date().getFullYear()} ${esc(CONFIG.brandName)}. Todos los derechos reservados.
+      </div>
+    </div>
+  </div>`;
+}
+
+function getAnswerLabel(stepId){
+  const step = QUIZ_STEPS.find(s=>s.id===stepId);
+  const idx = state.answers[stepId];
+  if(step && typeof idx==="number" && step.options[idx]) return step.options[idx].label.toLowerCase();
+  return "";
+}
+
+function toggleFaq(el){
+  el.parentElement.classList.toggle("open");
+}
+function scrollToOffer(){
+  const el = document.getElementById("offerAnchor");
+  if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+}
+function goToCheckout(method){
+  if(typeof fbq==="function"){ fbq('track','InitiateCheckout'); }
+  const url = method==="mp" ? CONFIG.mpCheckoutUrl : CONFIG.cardCheckoutUrl;
+  window.location.href = url;
+}
+
+let countdownInterval=null;
+function startCountdown(){
+  let total = CONFIG.countdownMinutes*60;
+  const timerEl = document.getElementById("timer");
+  if(!timerEl) return;
+  clearInterval(countdownInterval);
+  countdownInterval = setInterval(()=>{
+    total--;
+    if(total<0) total=0;
+    const m = String(Math.floor(total/60)).padStart(2,"0");
+    const s = String(total%60).padStart(2,"0");
+    timerEl.textContent = `${m}:${s}`;
+    if(total<=0) clearInterval(countdownInterval);
+  },1000);
+}
+
+/* =====================================================================
+   ROUTER
+   ===================================================================== */
+function buildScreenHtml(id){
+  if(id==="intro") return screenIntro();
+  if(id==="reveal") return screenReveal();
+  if(id==="single-photo") return screenSinglePhoto();
+  if(id.startsWith("phase-complete-")) return phaseCompleteScreen(parseInt(id.split("-").pop()));
+  if(id==="goals-confirm") return screenGoalsConfirm();
+  if(id==="analysis") return screenAnalysis();
+  if(id==="email") return screenEmail();
+  if(id==="results") return screenResults();
+  const step = QUIZ_STEPS.find(s=>s.id===id);
+  if(step) return renderQuestionScreen(step);
+  return `<div class="screen"><p>Pantalla no encontrada: ${id}</p></div>`;
+}
+
+function renderCurrentScreen(){
+  const id = state.flow[state.pos];
+  screensEl.innerHTML = buildScreenHtml(id);
+  const scrEl = screensEl.querySelector(".screen");
+  if(scrEl) scrEl.classList.add("active");
+  window.scrollTo(0,0);
+
+  if(id==="analysis"){ setTimeout(runAnalysisSequence, 300); }
+  if(id==="results"){ startCountdown(); }
+}
+
+function nextScreen(){
+  if(state.pos < state.flow.length-1){
+    state.pos++;
+    renderCurrentScreen();
+  }
+}
+function prevScreen(){
+  if(state.pos>0){
+    state.pos--;
+    renderCurrentScreen();
+  }
+}
+
+/* init */
+renderCurrentScreen();
+</script>
+</body>
+</html>
