@@ -547,11 +547,10 @@ a{color:var(--purple);}
 const CONFIG = {
   brandName: "Color Analysis Pro",
 
-  // 👇👇👇 PEGÁ ACÁ TU URL BASE DE IMÁGENES (GitHub raw o Cloudflare) 👇👇👇
-  // Ejemplo GitHub:    "https://raw.githubusercontent.com/tuusuario/turepo/main/img/"
-  // Ejemplo Cloudflare: "https://tu-dominio.pages.dev/img/"
-  // OJO: tiene que terminar con "/"
-  imgBase: "PEGAR_TU_URL_BASE_AQUI/",
+  // Si tus imágenes están en la MISMA carpeta que este HTML, dejalo vacío ("").
+  // Si algún día las movés a otro dominio (GitHub raw, Cloudflare, etc.),
+  // pegá acá esa URL terminada en "/", ej: "https://tu-dominio.pages.dev/img/"
+  imgBase: "",
 
   mpCheckoutUrl: "https://dcfrwk-15.myshopify.com/cart/48899850141870:1?checkout",
   cardCheckoutUrl: "https://dcfrwk-15.myshopify.com/cart/48899850141870:1?checkout",
@@ -1286,7 +1285,7 @@ function screenResults(){
       <div class="swatch-cap">Vista previa de tu paleta</div>
       <div class="swatch-row">${bestSw}</div>
 
-      <div class="btn-row getbtn"><button class="btn btn-gold" onclick="scrollToOffer()">QUIERO MI GUÍA COMPLETA →</button></div>
+      <div class="btn-row getbtn"><button class="btn btn-gold" onclick="goToCheckout('mp')">QUIERO MI GUÍA COMPLETA →</button></div>
 
       <div class="card">
         <h3>${esc(hookLine)}</h3>
