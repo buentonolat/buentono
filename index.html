@@ -35,43 +35,6 @@ fbq('track', 'PageView');
   --grey-text:#6B6252;
   --line:#E2D8C3;
   --green-mp:#00A650;
-  --error:#B23A3A;<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Color Analysis Pro — Descubrí tu paleta de color personalizada</title>
-<meta name="description" content="Test de colorimetría personal con IA. Descubrí tu estación de color, tu paleta ideal y recibí tu guía completa + 7 bonos.">
-
-<!-- =========================================================
-     META PIXEL — reemplazar TU_PIXEL_ID antes de publicar
-     ========================================================= -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', 'TU_PIXEL_ID');
-fbq('track', 'PageView');
-</script>
-
-<style>
-:root{
-  --purple:#5B2A6B;
-  --purple-dark:#3B1B47;
-  --purple-light:#8155A0;
-  --gold:#C9A227;
-  --gold-light:#E7C765;
-  --cream:#FBF6EC;
-  --cream-soft:#F3ECDD;
-  --charcoal:#2B2420;
-  --grey-text:#6B6252;
-  --line:#E2D8C3;
-  --green-mp:#00A650;
   --error:#B23A3A;
   --radius:16px;
   --radius-sm:10px;
@@ -583,8 +546,15 @@ a{color:var(--purple);}
    ===================================================================== */
 const CONFIG = {
   brandName: "Color Analysis Pro",
-  mpCheckoutUrl: "https://link.mercadopago.com.ar/TU_LINK_DE_PAGO",   // reemplazar
-  cardCheckoutUrl: "https://link.mercadopago.com.ar/TU_LINK_DE_PAGO", // reemplazar (o mismo link)
+
+  // 👇👇👇 PEGÁ ACÁ TU URL BASE DE IMÁGENES (GitHub raw o Cloudflare) 👇👇👇
+  // Ejemplo GitHub:    "https://raw.githubusercontent.com/tuusuario/turepo/main/img/"
+  // Ejemplo Cloudflare: "https://tu-dominio.pages.dev/img/"
+  // OJO: tiene que terminar con "/"
+  imgBase: "PEGAR_TU_URL_BASE_AQUI/",
+
+  mpCheckoutUrl: "https://dcfrwk-15.myshopify.com/cart/48899850141870:1?checkout",
+  cardCheckoutUrl: "https://dcfrwk-15.myshopify.com/cart/48899850141870:1?checkout",
   priceOld: "$44.999",
   priceNew: "$17.999",
   currency: "ARS",
@@ -949,7 +919,7 @@ function renderQuestionScreen(step){
     optsHtml = `<div class="options grid2">` + step.options.map((o,i)=>{
       const selected = multi ? (Array.isArray(currentVal)&&currentVal.includes(i)) : currentVal===i;
       const imgTag = o.img
-        ? `<img src="${o.img}.png" alt="${esc(o.label)}" onerror="this.style.display='none'">`
+        ? `<img src="${CONFIG.imgBase}${o.img}.png" alt="${esc(o.label)}" onerror="this.style.display='none'">`
         : "";
       return `<div class="opt-img ${selected?'selected':''}" onclick="selectOption('${step.id}',${i},${multi})">
         <div class="swatch" style="background:${o.swatch}">${imgTag}</div>
@@ -1004,7 +974,7 @@ function selectOption(stepId, idx, multi){
 /* ---------- pantallas especiales ---------- */
 function squarePhotoSlot(filename, altText){
   return `<div class="square-photo-slot">
-    <img src="${filename}" alt="${esc(altText||'')}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <img src="${CONFIG.imgBase}${filename}" alt="${esc(altText||'')}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
     <div class="ph-fallback" style="display:none;">
       <div class="ic">🖼️</div>
       <div>Falta la imagen <b>${esc(filename)}</b><br>(subila junto al HTML)</div>
@@ -1015,7 +985,7 @@ function squarePhotoSlot(filename, altText){
 function wideImageSlot(filename, altText, ratio){
   const style = ratio ? ` style="aspect-ratio:${ratio};"` : "";
   return `<div class="wide-photo-slot"${style}>
-    <img src="${filename}" alt="${esc(altText||'')}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <img src="${CONFIG.imgBase}${filename}" alt="${esc(altText||'')}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
     <div class="ph-fallback" style="display:none;">
       <div class="ic">🖼️</div>
       <div>Falta la imagen <b>${esc(filename)}</b><br>(subila junto al HTML)</div>
